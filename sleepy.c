@@ -126,10 +126,15 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
     return -EINTR;
 	
   /* YOUR CODE HERE */ 
+  if(copy_from_user(dev->data,buf,count) != 0)
+  {
+	printk(KERN_WARNING "sleepy_write(): copy from user failed.\n");
+	retval = -EFAULT;
+	goto ret;
+  }
   
-
-  write_val = *(int*) buf;
-
+  write_val = *(int*) dev->data;
+  printk(KERN_WARNING "Input: %d", write_val);
   if(write_val < 0)
   {
 	printk(KERN_INFO "Writing negative %d value to dev, no sleep\n", write_val);
