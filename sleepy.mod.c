@@ -19,13 +19,14 @@ __used
 __attribute__((section("__versions"))) = {
 	{ 0x9412fa01, __VMLINUX_SYMBOL_STR(module_layout) },
 	{ 0xb6b46a7c, __VMLINUX_SYMBOL_STR(param_ops_int) },
+	{ 0xf432dd3d, __VMLINUX_SYMBOL_STR(__init_waitqueue_head) },
 	{ 0xda6982e5, __VMLINUX_SYMBOL_STR(device_create) },
 	{ 0x987fde2e, __VMLINUX_SYMBOL_STR(cdev_add) },
 	{ 0xb46aca86, __VMLINUX_SYMBOL_STR(cdev_init) },
 	{ 0xac7f6dfd, __VMLINUX_SYMBOL_STR(__mutex_init) },
-	{ 0xd2b09ce5, __VMLINUX_SYMBOL_STR(__kmalloc) },
 	{ 0xd7bd463f, __VMLINUX_SYMBOL_STR(__class_create) },
 	{ 0x29537c9e, __VMLINUX_SYMBOL_STR(alloc_chrdev_region) },
+	{ 0xd2b09ce5, __VMLINUX_SYMBOL_STR(__kmalloc) },
 	{ 0x7485e15e, __VMLINUX_SYMBOL_STR(unregister_chrdev_region) },
 	{ 0x268f87ce, __VMLINUX_SYMBOL_STR(class_destroy) },
 	{ 0x37a0cba, __VMLINUX_SYMBOL_STR(kfree) },
@@ -38,6 +39,8 @@ __attribute__((section("__versions"))) = {
 	{ 0x7d11c268, __VMLINUX_SYMBOL_STR(jiffies) },
 	{ 0x4f6b400b, __VMLINUX_SYMBOL_STR(_copy_from_user) },
 	{ 0x1eecf3fc, __VMLINUX_SYMBOL_STR(mutex_unlock) },
+	{ 0x4f8b5ddb, __VMLINUX_SYMBOL_STR(_copy_to_user) },
+	{ 0xcf21d241, __VMLINUX_SYMBOL_STR(__wake_up) },
 	{ 0x5f6629de, __VMLINUX_SYMBOL_STR(mutex_lock_killable) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xbdfb6dbb, __VMLINUX_SYMBOL_STR(__fentry__) },
@@ -49,4 +52,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "BF12E90AE7CBED0850F9435");
+MODULE_INFO(srcversion, "ED10A11517BA9C86D755AD4");

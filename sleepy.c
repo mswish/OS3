@@ -96,9 +96,24 @@ sleepy_read(struct file *filp, char __user *buf, size_t count,
     return -EINTR;
 	
   /* YOUR CODE HERE */
+  if(waitqueue_active(&dev->wait_queue)== 0)
+  {
+	retval = 0;
+	printk(KERN_INFO "No process ready to read. Return now.");
+	goto ret;
+  }
+  
+  dev->flag = 1;
+  wake_up_interruptible(&dev->wait_queue);
 
-  /* END YOUR CODE */
+  if(copy_to_user(buf, dev->data,count) != 0)
+  {
+	printk(KERN_WARNING "sleepy_read(): copy to user failed.");
+	retval = -EFAULT;
+	goto ret;
+  }/* END YOUR CODE */
 	
+  ret:
   mutex_unlock(&dev->sleepy_mutex);
   return retval;
 }
@@ -112,10 +127,11 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
 
   unsigned long sleep;
   unsigned long wake;
+  unsigned long seconds;
   unsigned int elapsed_time;
   int write_val;
   int got_interrupted = 0;
-
+  int cp;
   if(count != 4)
 	{
 		printk(KERN_WARNING "Did not write 4 bytes. Writing %d bytes\n", (int) count);
@@ -124,10 +140,12 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
 	
   if (mutex_lock_killable(&dev->sleepy_mutex))
     return -EINTR;
-	
+
   /* YOUR CODE HERE */ 
   if(copy_from_user(dev->data,buf,count) != 0)
   {
+	cp = *(int*) buf;
+	printk(KERN_WARNING "Buf is: %d",cp);
 	printk(KERN_WARNING "sleepy_write(): copy from user failed.\n");
 	retval = -EFAULT;
 	goto ret;
@@ -230,6 +248,16 @@ sleepy_construct_device(struct sleepy_dev *dev, int minor,
     cdev_del(&dev->cdev);
     return err;
   }
+
+  dev->data = (char*) kzalloc(4 * sizeof(char),GFP_KERNEL);
+  if(dev->data == NULL)
+  {
+	printk(KERN_WARNING "Failed allocating dev data!\n");
+	return -EFAULT;
+  }
+  dev->flag = 0;
+  init_waitqueue_head(&dev->wait_queue);
+
   return 0;
 }
 
