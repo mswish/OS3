@@ -133,7 +133,7 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   int minor;
   int write_val;
   int got_interrupted = 0;
-  int cp;
+
 
   if(count != 4)
 	{
@@ -175,7 +175,7 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   elapsed_time = (wake - sleep) / HZ;
   retval = write_val - elapsed_time;
   minor = (int)iminor(filp->f_path.dentry->d_inode);
-  printk(KERN_INFO "SLEEPY_WRITE_DEVICE(%d):remaining = %zd \n", minor, retval);
+  printk(KERN_INFO "SLEEPY_WRITE_DEVICE(%d):remaining = %d \n", minor, (int) retval);
 
 
   /* END YOUR CODE */
