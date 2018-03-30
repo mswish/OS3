@@ -129,6 +129,7 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   unsigned long wake;
   unsigned long seconds;
   unsigned int elapsed_time;
+  int minor;
   int write_val;
   int got_interrupted = 0;
   int cp;
@@ -144,23 +145,19 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   /* YOUR CODE HERE */ 
   if(copy_from_user(dev->data,buf,count) != 0)
   {
-	cp = *(int*) buf;
-	printk(KERN_WARNING "Buf is: %d",cp);
 	printk(KERN_WARNING "sleepy_write(): copy from user failed.\n");
 	retval = -EFAULT;
 	goto ret;
   }
   
   write_val = *(int*) dev->data;
-  printk(KERN_WARNING "Input: %d", write_val);
   if(write_val < 0)
   {
-	printk(KERN_INFO "Writing negative %d value to dev, no sleep\n", write_val);
 	retval = 0;
 	goto ret;
   }
 
-  printk(KERN_INFO "Writing to dev sleepy, process is going to sleep for %d seconds.\n", write_val);
+//  printk(KERN_INFO "Writing to dev sleepy, process is going to sleep for %d seconds.\n", write_val);
   sleep = jiffies; //Record jiffies before we sleep
   mutex_unlock(&dev->sleepy_mutex); //Release lock be sleep
   if(wait_event_interruptible_timeout(dev->wait_queue, dev->flag != 0, write_val * HZ) != 0)
@@ -176,11 +173,12 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
 {
 	elapsed_time = (wake - sleep) / HZ;
 	retval = write_val - elapsed_time;
-	printk(KERN_INFO "PROcess has been woken by read(). Time left %d.\n", (int) retval);  
+	minor = (int)iminor(filp->f_path.dentry->d_inode);
+	printk(KERN_INFO "SLEEPY_WRITE_DEVICE(%d):remaining = %zd \n", minor, retval);  
 }
 else
 {
-	printk(KERN_INFO "Process has been woken up normall.\n");
+	printk(KERN_INFO "Process has been woken up normally.\n");
 	retval = 0;
 	goto ret;
 }
