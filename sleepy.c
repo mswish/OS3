@@ -178,7 +178,6 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
 }
 else
 {
-	printk(KERN_INFO "Process has been woken up normally.\n");
 	retval = 0;
 	goto ret;
 }
