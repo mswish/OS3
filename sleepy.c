@@ -91,24 +91,25 @@ sleepy_read(struct file *filp, char __user *buf, size_t count,
 {
   struct sleepy_dev *dev = (struct sleepy_dev *)filp->private_data;
   ssize_t retval = 0;
-	
+  int minor;	
   if (mutex_lock_killable(&dev->sleepy_mutex))
     return -EINTR;
+
+  minor = (int)iminor(filp->f_path.dentry->d_inode);
+  printk("SLEEPY_READ DEVICE (%d): Process is waking everyone up\n",minor);
 	
   /* YOUR CODE HERE */
   if(waitqueue_active(&dev->wait_queue)== 0)
   {
 	retval = 0;
-	printk(KERN_INFO "No process ready to read. Return now.");
 	goto ret;
   }
   
   dev->flag = 1;
   wake_up_interruptible(&dev->wait_queue);
-
   if(copy_to_user(buf, dev->data,count) != 0)
   {
-	printk(KERN_WARNING "sleepy_read(): copy to user failed.");
+	printk(KERN_WARNING "sleepy_read(): copy to user failed.\n");
 	retval = -EFAULT;
 	goto ret;
   }/* END YOUR CODE */
@@ -133,6 +134,7 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   int write_val;
   int got_interrupted = 0;
   int cp;
+
   if(count != 4)
 	{
 		printk(KERN_WARNING "Did not write 4 bytes. Writing %d bytes\n", (int) count);
@@ -153,6 +155,7 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   write_val = *(int*) dev->data;
   if(write_val < 0)
   {
+	printk(KERN_WARNING "Value lower than 0");
 	retval = 0;
 	goto ret;
   }
@@ -169,18 +172,10 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   mutex_lock(&dev->sleepy_mutex);
   dev->flag = 0;
 
- if(got_interrupted == 1)
-{
-	elapsed_time = (wake - sleep) / HZ;
-	retval = write_val - elapsed_time;
-	minor = (int)iminor(filp->f_path.dentry->d_inode);
-	printk(KERN_INFO "SLEEPY_WRITE_DEVICE(%d):remaining = %zd \n", minor, retval);  
-}
-else
-{
-	retval = 0;
-	goto ret;
-}
+  elapsed_time = (wake - sleep) / HZ;
+  retval = write_val - elapsed_time;
+  minor = (int)iminor(filp->f_path.dentry->d_inode);
+  printk(KERN_INFO "SLEEPY_WRITE_DEVICE(%d):remaining = %zd \n", minor, retval);
 
 
   /* END YOUR CODE */
